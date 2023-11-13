@@ -1,12 +1,6 @@
 import { db } from "./firebase.js";
 
-import {
-  collection,
-  query,
-  getDocs,
-  where,
-} from "firebase/firestore";
-
+import { collection, getDocs } from "firebase/firestore";
 import { getChampions } from "./champions.js";
 
 const category = "abilities";
@@ -26,8 +20,10 @@ export async function getRandomAbilites() {
   const querySnapshot = await getDocs(coll);
 
   if (querySnapshot.empty) {
-    console.log("No documents in collection");
-    return;
+    console.log(
+      "No documents in collection" + champion + "-" + category
+    );
+    return await getRandomAbilites();
   }
 
   const random = Math.floor(Math.random() * querySnapshot.size);

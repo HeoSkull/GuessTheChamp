@@ -1,25 +1,47 @@
 import React, { useEffect } from "react";
-import { Text, View, Image, StyleSheet } from "react-native";
+import {
+  Text,
+  View,
+  Image,
+  StyleSheet,
+  Pressable,
+} from "react-native";
 
 import { listChampions } from "../../services/champions.js";
 import { getRandomAbilites } from "../../services/ability.js";
 
+import Question from "../../shared/Question.js";
 import InputChampion from "../../shared/InputChampion.js";
+import ResetButton from "../../shared/ResetButton.js";
+import ListGuessed from "../../shared/ListGuessed.js";
 
 export default function Ability(props) {
-  let isCalled = false;
-  const [ability, setAbility] = React.useState({});
+  const [ability, setAbility] = React.useState({
+    image: "",
+    champion: "",
+  });
   const [count, setCount] = React.useState(0);
+  const [isCorrected, setIsCorrected] = React.useState(false);
   const [championSelected, setChampionSelected] = React.useState([]);
 
   const onSubmit = (champion) => {
     setChampionSelected([champion, ...championSelected]);
     setCount(count + 1);
+    if (champion.name === ability.champion) {
+      setIsCorrected(true);
+    }
+  };
+
+  const onReset = () => {
+    setChampionSelected([]);
+    setCount(0);
+    setIsCorrected(false);
+    getRandomAbilites().then((ability) => {
+      setAbility(ability);
+    });
   };
 
   useEffect(() => {
-    if (isCalled) return;
-    isCalled = true;
     getRandomAbilites().then((ability) => {
       setAbility(ability);
     });
@@ -27,113 +49,62 @@ export default function Ability(props) {
 
   return (
     <View>
-      <View style={styles.questionContainer}>
-        <View style={styles.questionWrapper}>
-          <Text style={styles.text}>Which Champion's Skill</Text>
-          <Image
-            style={{ width: 50, height: 50 }}
-            source={{ uri: ability.image }}
-          />
-        </View>
-      </View>
+      <Question>
+        <Text style={styles.text}>Which Champion's Skill</Text>
+        <Image
+          style={styles.ability}
+          source={{ uri: ability.image }}
+        />
+      </Question>
 
-      <View style={styles.inputContainer}>
+      <View
+        style={[
+          styles.input,
+          { display: isCorrected ? "none" : "flex" },
+        ]}
+      >
         <InputChampion
           championSelected={championSelected}
           onSubmit={onSubmit}
         />
       </View>
 
-      <View>
-        {championSelected.map((champion) => {
-          return (
-            <View
-              style={styles.guessChampionCardContainer}
-              key={champion.name}
-            >
-              <View
-                style={[
-                  styles.guessChampionCardWrapper,
-                  {
-                    backgroundColor:
-                      champion.name === ability.champion
-                        ? "green"
-                        : "red",
-                  },
-                ]}
-              >
-                <Image
-                  style={{ width: 50, height: 50 }}
-                  source={{ uri: champion.avatar }}
-                />
-                <Text style={styles.text}>{champion.name}</Text>
-              </View>
-            </View>
-          );
-        })}
+      <View style={{ display: isCorrected ? "flex" : "none" }}>
+        <ResetButton onReset={onReset} />
+      </View>
+
+      <View style={styles.listGuessed}>
+        <ListGuessed
+          championSelected={championSelected}
+          answer={ability.champion}
+        />
       </View>
     </View>
   );
 }
 
-const BackgroundColor = "#1E2328";
-const BorderInputColor = "#06B5B3";
-const BorderWidth = 2;
-
 const styles = StyleSheet.create({
-  questionContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  questionWrapper: {
-    backgroundColor: BackgroundColor,
-    borderWidth: BorderWidth,
-    borderColor: BorderInputColor,
-    padding: 30,
-    borderRadius: 10,
-    marginBottom: 20,
-    alignItems: "center",
-  },
-
   text: {
     color: "white",
     fontSize: 20,
   },
 
-  quote: {
-    color: "white",
-    fontSize: 20,
-    flexWrap: "wrap",
+  ability: {
+    width: 100,
+    height: 100,
+    marginTop: 15,
   },
 
-  inputContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
+  input: {
     alignItems: "center",
+
+    position: "relative",
+    zIndex: 1,
   },
 
-  guessChampionCardContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  guessChampionCardWrapper: {
-    width: 250,
-
-    backgroundColor: BackgroundColor,
-    borderWidth: BorderWidth,
-    borderColor: BorderInputColor,
-
-    padding: 30,
-    borderRadius: 10,
-    marginBottom: 20,
-    alignItems: "center",
-
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
+  listGuessed: {
+    position: "relative",
+    zIndex: 0,
+    marginTop: 20,
   },
 });

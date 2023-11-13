@@ -25,20 +25,16 @@ export async function getRandomQuote() {
 
   const q = query(
     coll,
-    where("type", "in", ["Movement", "First Encounter"]),
-    where("category", "in", [
-      "First Move",
-      "Moving",
-      "Long Move",
-      "First Encounter ",
-    ])
+    where("type", "in", ["Movement", "First Encounter"])
   );
 
   const querySnapshot = await getDocs(q);
 
   if (querySnapshot.empty) {
-    console.log("No documents in collection");
-    return;
+    console.log(
+      "No documents in collection" + champion + "-" + category
+    );
+    return await getRandomQuote();
   }
 
   const random = Math.floor(Math.random() * querySnapshot.size);
