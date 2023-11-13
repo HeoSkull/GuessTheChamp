@@ -1,26 +1,51 @@
-import React, { useEffect } from "react";
-import { Text, View, Image, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Text, View, StyleSheet } from "react-native";
 
 import { listChampions } from "../../services/champions.js";
 import { getRandomQuote } from "../../services/quote.js";
 
+import Question from "../../shared/Question.js";
 import InputChampion from "../../shared/InputChampion.js";
+import ResetButton from "../../shared/ResetButton.js";
+import ListGuessed from "../../shared/ListGuessed.js";
 
 export default function Quote(props) {
-  const [quote, setQuote] = React.useState({});
-  const [count, setCount] = React.useState(0);
-  const [championSelected, setChampionSelected] = React.useState([]);
+  const [quote, setQuote] = useState({
+    champion: "",
+    quote: "",
+    audio: "",
+  });
+  const [count, setCount] = useState(0);
+  const [isCorrected, setIsCorrected] = React.useState(false);
+  const [championSelected, setChampionSelected] = useState([]);
 
-  const removeRevision = (audio) => {
-    if (audio === undefined) {
+  // Remove revision from audio url for audio tag to work
+  const removeRevision = (quote) => {
+    if (quote === undefined) {
       return "";
     }
-    return audio.split("/revision/")[0];
+
+    if (quote.audio === undefined) {
+      return "";
+    }
+    return quote.audio.split("/revision/")[0];
   };
 
   const onSubmit = (champion) => {
     setChampionSelected([champion, ...championSelected]);
     setCount(count + 1);
+    if (champion.name === quote.champion) {
+      setIsCorrected(true);
+    }
+  };
+
+  const onReset = () => {
+    setChampionSelected([]);
+    setCount(0);
+    setIsCorrected(false);
+    getRandomQuote().then((quote) => {
+      setQuote(quote);
+    });
   };
 
   useEffect(() => {
@@ -31,87 +56,52 @@ export default function Quote(props) {
 
   return (
     <View>
-      <View style={styles.questionContainer}>
-        <View style={styles.questionWrapper}>
-          <Text style={styles.text}>Which Champion says</Text>
-          <Text style={styles.quote}>
-            {quote === undefined ? "" : quote.quote}
-          </Text>
-          <View
-            style={[
-              { marginTop: 10 },
-              { display: count < 5 ? "none" : "flex" },
-            ]}
-          >
-            <audio
-              type="application/ogg"
-              src={removeRevision(quote.audio ?? "")}
-              controls
-            ></audio>
-          </View>
+      <Question>
+        <Text style={styles.text}>Which Champion says</Text>
+        <Text style={styles.quote}>
+          {quote === undefined ? "" : quote.quote}
+        </Text>
+        <View
+          style={[
+            { marginTop: 10 },
+            { display: count < 5 ? "none" : "flex" },
+          ]}
+        >
+          <audio
+            type="application/ogg"
+            src={removeRevision(quote)}
+            controls
+          ></audio>
         </View>
-      </View>
+      </Question>
 
-      <View style={styles.inputContainer}>
+      <View
+        style={[
+          styles.input,
+          { display: isCorrected ? "none" : "flex" },
+        ]}
+      >
         <InputChampion
           championSelected={championSelected}
           onSubmit={onSubmit}
         />
       </View>
 
-      <View>
-        {championSelected.map((champion) => {
-          return (
-            <View
-              style={styles.guessChampionCardContainer}
-              key={champion.name}
-            >
-              <View
-                style={[
-                  styles.guessChampionCardWrapper,
-                  {
-                    backgroundColor:
-                      champion.name === quote.champion
-                        ? "green"
-                        : "red",
-                  },
-                ]}
-              >
-                <Image
-                  style={{ width: 50, height: 50 }}
-                  source={{ uri: champion.avatar }}
-                />
-                <Text style={styles.text}>{champion.name}</Text>
-              </View>
-            </View>
-          );
-        })}
+      <View style={{ display: isCorrected ? "flex" : "none" }}>
+        <ResetButton onReset={onReset} />
+      </View>
+
+      <View style={styles.listGuessed}>
+        <ListGuessed
+          championSelected={championSelected}
+          answer={quote.champion}
+        />
       </View>
     </View>
   );
 }
 
-const BackgroundColor = "#1E2328";
-const BorderInputColor = "#06B5B3";
-const BorderWidth = 2;
-
 const styles = StyleSheet.create({
-  questionContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  questionWrapper: {
-    backgroundColor: BackgroundColor,
-    borderWidth: BorderWidth,
-    borderColor: BorderInputColor,
-    padding: 30,
-    borderRadius: 10,
-    marginBottom: 20,
-    alignItems: "center",
-  },
-
   text: {
     color: "white",
     fontSize: 20,
@@ -119,36 +109,21 @@ const styles = StyleSheet.create({
 
   quote: {
     color: "white",
-    fontSize: 20,
+    fontSize: 30,
+    fontWeight: "bold",
     flexWrap: "wrap",
+    maxWidth: 500,
   },
 
-  inputContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
+  input: {
     alignItems: "center",
+    position: "relative",
+    zIndex: 1,
   },
 
-  guessChampionCardContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  guessChampionCardWrapper: {
-    width: 250,
-
-    backgroundColor: BackgroundColor,
-    borderWidth: BorderWidth,
-    borderColor: BorderInputColor,
-
-    padding: 30,
-    borderRadius: 10,
-    marginBottom: 20,
-    alignItems: "center",
-
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
+  listGuessed: {
+    position: "relative",
+    zIndex: 0,
+    marginTop: 20,
   },
 });

@@ -22,6 +22,10 @@ export default function InputChampion(props) {
   const { onSubmit = console.log } = props;
 
   const submit = (champion) => {
+    if (championFound.length === 0) {
+      return;
+    }
+
     if (champion === undefined) {
       onSubmit(championFound[0]);
     } else {
@@ -159,7 +163,14 @@ const styles = StyleSheet.create({
   },
 
   foundContainer: {
-    marginTop: 10,
+    top: InputHeight + InputBorderWidth * 2 + 10,
+    width:
+      InputWidth +
+      InputBorderWidth * 2 +
+      10 +
+      InputHeight +
+      InputBorderWidth * 2,
+    position: "absolute",
     flexDirection: "column",
     justifyContent: "space-between",
   },

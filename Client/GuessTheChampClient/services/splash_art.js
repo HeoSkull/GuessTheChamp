@@ -4,7 +4,7 @@ import { collection, getDocs } from "firebase/firestore";
 
 import { getChampions } from "./champions.js";
 
-const category = "splash_art";
+const category = "splasharts";
 
 export async function getRandomSplashArt() {
   console.log("getRandomSplashArt");
@@ -21,8 +21,10 @@ export async function getRandomSplashArt() {
   const querySnapshot = await getDocs(coll);
 
   if (querySnapshot.empty) {
-    console.log("No documents in collection");
-    return;
+    console.log(
+      "No documents in collection" + champion + "-" + category
+    );
+    return await getRandomSplashArt();
   }
 
   const random = Math.floor(Math.random() * querySnapshot.size);

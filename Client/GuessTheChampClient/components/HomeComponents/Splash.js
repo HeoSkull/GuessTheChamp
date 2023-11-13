@@ -1,136 +1,121 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Text, View, Image, StyleSheet } from "react-native";
 
 import { listChampions } from "../../services/champions.js";
 import { getRandomSplashArt } from "../../services/splash_art.js";
 
+import Question from "../../shared/Question.js";
 import InputChampion from "../../shared/InputChampion.js";
+import ResetButton from "../../shared/ResetButton.js";
+import ListGuessed from "../../shared/ListGuessed.js";
 
-export default function Slash(props) {
-  const [slashart, setSlashArt] = React.useState({});
-  const [count, setCount] = React.useState(0);
-  const [championSelected, setChampionSelected] = React.useState([]);
+export default function Splash(props) {
+  const [splashart, setSplashart] = useState({
+    image: "",
+    champion: "",
+  });
+  const [count, setCount] = useState(0);
+  const [isCorrected, setIsCorrected] = React.useState(false);
+  const [championSelected, setChampionSelected] = useState([]);
 
   const onSubmit = (champion) => {
     setChampionSelected([champion, ...championSelected]);
     setCount(count + 1);
+
+    if (champion.name === splashart.champion) {
+      setIsCorrected(true);
+    }
+  };
+
+  const onReset = () => {
+    setChampionSelected([]);
+    setCount(0);
+    setIsCorrected(false);
+    getRandomSplashArt().then((splashart) => {
+      setSplashart(splashart);
+    });
   };
 
   useEffect(() => {
-    getRandomSplashArt().then((slashart) => {
-      setSlashArt(slashart);
+    getRandomSplashArt().then((splashart) => {
+      setSplashart(splashart);
     });
   }, [listChampions]);
 
   return (
     <View>
-      <View style={styles.questionContainer}>
-        <View style={styles.questionWrapper}>
-          <Text style={styles.text}>Which Champion's Art</Text>
+      <Question>
+        <Text style={styles.text}>Which Champion's Art</Text>
+        <View style={styles.splashartWrapper}>
           <Image
-            style={{ width: 250, height: 250 }}
-            source={{ uri: slashart.image }}
+            style={[
+              styles.splashart,
+              {
+                transform: isCorrected
+                  ? [{ scale: 1 }]
+                  : [{ scale: Math.max(1, 4 - count * 0.25) }],
+              },
+            ]}
+            source={{ uri: splashart.image }}
           />
         </View>
-      </View>
+      </Question>
 
-      <View style={styles.inputContainer}>
+      <View
+        style={[
+          styles.input,
+          { display: isCorrected ? "none" : "flex" },
+        ]}
+      >
         <InputChampion
           championSelected={championSelected}
           onSubmit={onSubmit}
         />
       </View>
 
-      <View>
-        {championSelected.map((champion) => {
-          return (
-            <View
-              style={styles.guessChampionCardContainer}
-              key={champion.name}
-            >
-              <View
-                style={[
-                  styles.guessChampionCardWrapper,
-                  {
-                    backgroundColor:
-                      champion.name === slashart.champion
-                        ? "green"
-                        : "red",
-                  },
-                ]}
-              >
-                <Image
-                  style={{ width: 50, height: 50 }}
-                  source={{ uri: champion.avatar }}
-                />
-                <Text style={styles.text}>{champion.name}</Text>
-              </View>
-            </View>
-          );
-        })}
+      <View style={{ display: isCorrected ? "flex" : "none" }}>
+        <ResetButton onReset={onReset} />
+      </View>
+
+      <View style={styles.listGuessed}>
+        <ListGuessed
+          championSelected={championSelected}
+          answer={splashart.champion}
+        />
       </View>
     </View>
   );
 }
 
-const BackgroundColor = "#1E2328";
-const BorderInputColor = "#06B5B3";
-const BorderWidth = 2;
-
 const styles = StyleSheet.create({
-  questionContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  questionWrapper: {
-    backgroundColor: BackgroundColor,
-    borderWidth: BorderWidth,
-    borderColor: BorderInputColor,
-    padding: 30,
-    borderRadius: 10,
-    marginBottom: 20,
-    alignItems: "center",
-  },
-
   text: {
     color: "white",
     fontSize: 20,
   },
 
-  quote: {
-    color: "white",
-    fontSize: 20,
-    flexWrap: "wrap",
-  },
-
-  inputContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  guessChampionCardContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  guessChampionCardWrapper: {
-    width: 250,
-
-    backgroundColor: BackgroundColor,
-    borderWidth: BorderWidth,
-    borderColor: BorderInputColor,
-
-    padding: 30,
+  splashartWrapper: {
+    marginTop: 20,
+    width: 300,
+    height: 300,
     borderRadius: 10,
-    marginBottom: 20,
-    alignItems: "center",
+    overflow: "hidden",
+  },
 
-    flexDirection: "column",
+  splashart: {
+    width: 300,
+    height: 300,
+    resizeMode: "contain",
+  },
+
+  input: {
     alignItems: "center",
-    justifyContent: "center",
+    position: "relative",
+    zIndex: 1,
+  },
+
+  listGuessed: {
+    marginTop: 20,
+    position: "relative",
+    zIndex: 0,
   },
 });
