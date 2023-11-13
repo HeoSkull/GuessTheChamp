@@ -1,24 +1,45 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import { NavigationContainer } from "@react-navigation/native";
-import React, { Component } from 'react';
-import Home from './Components/HomeComponent'
-import Quote from './Components/QuoteComponent'
-import Emoji from './Components/EmojiComponent';
-import { createStackNavigator } from "@react-navigation/stack";
+import React from "react";
+import { StyleSheet } from "react-native";
+import {
+  NavigationContainer,
+  useNavigationContainerRef,
+} from "@react-navigation/native";
 
-class App extends Component {
-  // render() {
-  //   return (
-  //     <Quote />
-  //   );
-  // }
-  render(){
+import "./services/firebase.js";
+import "./services/champions.js";
+
+import { createCustomLayout } from "./components/Layout";
+const Stack = createCustomLayout();
+
+//Components
+import Home from "./components/Home";
+
+import Quote from "./components/HomeComponents/Quote";
+import Emoji from "./components/HomeComponents/Emoji";
+import Ability from "./components/HomeComponents/Ability";
+import Splash from "./components/HomeComponents/Splash";
+
+export default function App() {
+  const navigationRef = useNavigationContainerRef();
+
   return (
-    <NavigationContainer>
-      <Quote/>
+    <NavigationContainer style={styles.container} ref={navigationRef}>
+      <Stack.Navigator style={styles.navigator}>
+        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="Quote" component={Quote} />
+        <Stack.Screen name="Emoji" component={Emoji} />
+        <Stack.Screen name="Ability" component={Ability} />
+        <Stack.Screen name="Splash" component={Splash} />
+      </Stack.Navigator>
     </NavigationContainer>
   );
-  }
-  }
-export default App; 
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  navigator: {
+    flex: 1,
+  },
+});
