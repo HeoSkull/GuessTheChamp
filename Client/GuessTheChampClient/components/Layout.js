@@ -1,11 +1,12 @@
 import * as React from "react";
 import {
-  Text,
   View,
+  ScrollView,
   Image,
   Pressable,
   StyleSheet,
   ImageBackground,
+  Dimensions,
 } from "react-native";
 import {
   useNavigationBuilder,
@@ -62,6 +63,10 @@ function TabNavigator({ initialRouteName, children, screenOptions }) {
   );
 }
 
+const windowWidth = Dimensions.get("window").width;
+const logoRatio = 350 / 150;
+const logoWidth = windowWidth > 350 ? 350 : windowWidth - 20;
+
 const styles = StyleSheet.create({
   background: {
     flex: 1,
@@ -81,8 +86,8 @@ const styles = StyleSheet.create({
     marginTop: 50,
   },
   headerImage: {
-    height: 150,
-    width: 350,
+    height: logoWidth / logoRatio,
+    width: logoWidth,
     resizeMode: "contain",
   },
   main: {

@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Text, View, StyleSheet } from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  Pressable,
+  Dimensions,
+} from "react-native";
+import { Audio } from "expo-av";
 
 import { listChampions } from "../../services/champions.js";
 import { getRandomQuote } from "../../services/quote.js";
@@ -15,6 +22,7 @@ export default function Quote(props) {
     quote: "",
     audio: "",
   });
+  const [sound, setSound] = React.useState();
   const [count, setCount] = useState(0);
   const [isCorrected, setIsCorrected] = React.useState(false);
   const [championSelected, setChampionSelected] = useState([]);
@@ -28,7 +36,17 @@ export default function Quote(props) {
     if (quote.audio === undefined) {
       return "";
     }
+
     return quote.audio.split("/revision/")[0];
+  };
+
+  const loadSound = async (link) => {
+    const { sound } = await Audio.Sound.createAsync(link);
+    setSound(sound);
+  };
+
+  const playSound = async () => {
+    await sound.playAsync();
   };
 
   const onSubmit = (champion) => {
@@ -45,14 +63,25 @@ export default function Quote(props) {
     setIsCorrected(false);
     getRandomQuote().then((quote) => {
       setQuote(quote);
+      loadSound(removeRevision(quote));
     });
   };
 
   useEffect(() => {
     getRandomQuote().then((quote) => {
       setQuote(quote);
+      loadSound(removeRevision(quote));
     });
   }, [listChampions]);
+
+  useEffect(() => {
+    return sound
+      ? () => {
+          console.log("Unloading Sound");
+          sound.unloadAsync();
+        }
+      : undefined;
+  }, [sound]);
 
   return (
     <View>
@@ -64,14 +93,12 @@ export default function Quote(props) {
         <View
           style={[
             { marginTop: 10 },
-            { display: count < 5 ? "none" : "flex" },
+            { display: isCorrected || count >= 5 ? "flex" : "none" },
           ]}
         >
-          <audio
-            type="application/ogg"
-            src={removeRevision(quote)}
-            controls
-          ></audio>
+          <Pressable onPress={playSound} style={styles.playButton}>
+            <Text style={styles.text}>Play sound</Text>
+          </Pressable>
         </View>
       </Question>
 
@@ -101,6 +128,11 @@ export default function Quote(props) {
   );
 }
 
+const BackgroundColor = "#1E2328";
+const BorderButtonColor = "#E5D347";
+
+const windowWidth = Dimensions.get("window").width;
+
 const styles = StyleSheet.create({
   text: {
     color: "white",
@@ -109,10 +141,20 @@ const styles = StyleSheet.create({
 
   quote: {
     color: "white",
-    fontSize: 30,
+    fontSize: 30 * (windowWidth / 400 > 1 ? 1 : windowWidth / 400),
     fontWeight: "bold",
     flexWrap: "wrap",
     maxWidth: 500,
+  },
+
+  playButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: BackgroundColor,
+    borderWidth: 2,
+    borderColor: BorderButtonColor,
+    padding: 10,
+    borderRadius: 5,
   },
 
   input: {

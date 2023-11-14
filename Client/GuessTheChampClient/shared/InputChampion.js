@@ -7,6 +7,7 @@ import {
   TextInput,
   Image,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
 
 import {
@@ -21,16 +22,12 @@ export default function InputChampion(props) {
   const { championSelected = [] } = props;
   const { onSubmit = console.log } = props;
 
-  const submit = (champion) => {
+  const submit = () => {
     if (championFound.length === 0) {
       return;
     }
 
-    if (champion === undefined) {
-      onSubmit(championFound[0]);
-    } else {
-      onSubmit(champion);
-    }
+    onSubmit(championFound[0]);
     setChampion("");
   };
 
@@ -63,6 +60,7 @@ export default function InputChampion(props) {
             onChangeText={setChampion}
             type="text"
             placeholder="Type the champion name"
+            placeholderTextColor={TextColor}
             maxLength={20}
             value={champion}
           />
@@ -110,9 +108,12 @@ const BorderButtonColor = "#E5D347";
 
 const TextColor = "#fff";
 
-const InputHeight = 70;
-const InputWidth = 350;
-const InputBorderWidth = 4;
+const InputRatio = 350 / 70;
+const windowWidth = Dimensions.get("window").width;
+const InputWidth = windowWidth > 350 ? 270 : windowWidth * 0.8 - 10;
+const percentScaled = InputWidth / 350 > 1 ? 1 : InputWidth / 350;
+const InputHeight = InputWidth / InputRatio;
+const InputBorderWidth = 3 * percentScaled;
 
 const styles = StyleSheet.create({
   inputContainer: {
@@ -131,12 +132,13 @@ const styles = StyleSheet.create({
     height: InputHeight,
     width: InputWidth,
     position: "absolute",
-    border: "none",
+    borderWidth: 0,
     backgroundColor: "transparent",
 
-    paddingLeft: 25,
+    textAlignVertical: "center",
+    paddingLeft: 15 * percentScaled,
 
-    fontSize: 25,
+    fontSize: 25 * percentScaled,
     color: TextColor,
     backgroundColor: BackgroundColor,
   },
@@ -158,7 +160,7 @@ const styles = StyleSheet.create({
   buttonImage: {
     height: InputHeight / 2,
     width: InputHeight / 2,
-    border: "none",
+    borderWidth: 0,
     backgroundColor: "transparent",
   },
 
