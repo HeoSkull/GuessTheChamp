@@ -59,9 +59,7 @@ export default function Emoji(props) {
   return (
     <View>
       <Question>
-        <Text style={styles.text}>
-          Which Champion that Emoji decribe
-        </Text>
+        <Text style={styles.text}>Which Champion?</Text>
         <Text style={styles.emoji}>
           {emojiArray.map((emoji, index) => (
             <Text

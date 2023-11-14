@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Text, View, Image, StyleSheet } from "react-native";
+import {
+  Text,
+  View,
+  Image,
+  StyleSheet,
+  Dimensions,
+} from "react-native";
 
 import { listChampions } from "../../services/champions.js";
 import { getRandomSplashArt } from "../../services/splash_art.js";
@@ -53,7 +59,11 @@ export default function Splash(props) {
               {
                 transform: isCorrected
                   ? [{ scale: 1 }]
-                  : [{ scale: Math.max(1, 4 - count * 0.25) }],
+                  : [
+                      {
+                        scale: Math.max(1, 5 - count * 0.25),
+                      },
+                    ],
               },
             ]}
             source={{ uri: splashart.image }}
@@ -87,6 +97,10 @@ export default function Splash(props) {
   );
 }
 
+const windowWidth = Dimensions.get("window").width;
+const SplashWidth = windowWidth > 300 ? 150 : windowWidth - 150;
+const percentScaled = SplashWidth / 300 > 1 ? 1 : SplashWidth / 300;
+
 const styles = StyleSheet.create({
   text: {
     color: "white",
@@ -94,16 +108,16 @@ const styles = StyleSheet.create({
   },
 
   splashartWrapper: {
-    marginTop: 20,
-    width: 300,
-    height: 300,
+    marginTop: 20 * percentScaled,
+    width: SplashWidth,
+    height: SplashWidth,
     borderRadius: 10,
     overflow: "hidden",
   },
 
   splashart: {
-    width: 300,
-    height: 300,
+    width: SplashWidth,
+    height: SplashWidth,
     resizeMode: "contain",
   },
 
