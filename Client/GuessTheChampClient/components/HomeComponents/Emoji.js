@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Text, View, Image, StyleSheet } from "react-native";
+import { Text, View, Image, StyleSheet, Alert, } from "react-native";
 import Graphemer from "graphemer";
 
 const splitter = new Graphemer();
@@ -34,8 +34,23 @@ export default function Emoji(props) {
   const onSubmit = (champion) => {
     setChampionSelected([champion, ...championSelected]);
     setCount(count + 1);
+
     if (champion.name === emoji.champion) {
       setIsCorrected(true);
+
+      // Display an alert or popup congratulating the user
+      Alert.alert(
+        "Congratulations!",
+        "You correctly guessed the champion's emoji!",
+        [{ text: "OK", onPress: () => {} }]
+      );
+    } else {
+      // Display an alert or popup indicating the wrong selection
+      Alert.alert(
+        "Incorrect Answer",
+        `You guessed ${champion.name}, but the correct champion is ${emoji.champion}.`,
+        [{ text: "OK", onPress: () => {} }]
+      );
     }
   };
 
