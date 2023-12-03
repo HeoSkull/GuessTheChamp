@@ -5,6 +5,7 @@ import {
   Image,
   StyleSheet,
   Pressable,
+  Alert,
 } from "react-native";
 
 import { listChampions } from "../../services/champions.js";
@@ -27,8 +28,23 @@ export default function Ability(props) {
   const onSubmit = (champion) => {
     setChampionSelected([champion, ...championSelected]);
     setCount(count + 1);
+
     if (champion.name === ability.champion) {
       setIsCorrected(true);
+
+      // Display an alert or popup congratulating the user
+      Alert.alert(
+        "Congratulations!",
+        "You correctly guessed the champion's skill!",
+        [{ text: "OK", onPress: () => {} }]
+      );
+    } else {
+      // Display an alert or popup indicating the wrong selection
+      Alert.alert(
+        "Incorrect Answer",
+        `You selected ${champion.name}, but the correct champion is ${ability.champion}.`,
+        [{ text: "OK", onPress: () => {} }]
+      );
     }
   };
 

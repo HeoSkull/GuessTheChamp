@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Pressable,
   Dimensions,
+  Alert,
 } from "react-native";
 import { Audio } from "expo-av";
 
@@ -49,11 +50,33 @@ export default function Quote(props) {
     await sound.playAsync();
   };
 
+  // const onSubmit = (champion) => {
+  //   setChampionSelected([champion, ...championSelected]);
+  //   setCount(count + 1);
+  //   if (champion.name === quote.champion) {
+  //     setIsCorrected(true);
+  //   }
+  // };
   const onSubmit = (champion) => {
     setChampionSelected([champion, ...championSelected]);
     setCount(count + 1);
+  
     if (champion.name === quote.champion) {
       setIsCorrected(true);
+  
+      // Display an alert or popup congratulating the user
+      Alert.alert(
+        'Congratulations!',
+        'You correctly guessed the champion!',
+        [{ text: 'OK', onPress: () => {} }]
+      );
+    } else {
+      // Display an alert or popup indicating incorrect selection
+      Alert.alert(
+        'Oops!',
+        'That\'s not the right champion. Try again!',
+        [{ text: 'OK', onPress: () => {} }]
+      );
     }
   };
 

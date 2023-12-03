@@ -5,6 +5,7 @@ import {
   Image,
   StyleSheet,
   Dimensions,
+  Alert,
 } from "react-native";
 
 import { listChampions } from "../../services/champions.js";
@@ -30,6 +31,20 @@ export default function Splash(props) {
 
     if (champion.name === splashart.champion) {
       setIsCorrected(true);
+
+      // Display an alert or popup congratulating the user
+      Alert.alert(
+        "Congratulations!",
+        "You correctly guessed the champion's splash art!",
+        [{ text: "OK", onPress: () => {} }]
+      );
+    } else {
+      // Display an alert or popup indicating the wrong selection
+      Alert.alert(
+        "Incorrect Answer",
+        `You guessed ${champion.name}, but the correct champion is ${splashart.champion}.`,
+        [{ text: "OK", onPress: () => {} }]
+      );
     }
   };
 
