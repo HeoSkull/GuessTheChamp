@@ -27,6 +27,10 @@ export default function InputChampion(props) {
       return;
     }
 
+    if (championFound.length >= 20){
+      return;
+    }
+
     onSubmit(championFound[0]);
     setChampion("");
   };
@@ -84,7 +88,7 @@ export default function InputChampion(props) {
           {championFound.map((champion) => (
             <TouchableOpacity
               onPress={() => {
-                submit(champion);
+                onSubmit(champion);
               }}
               style={styles.championContainer}
               key={champion.name}
